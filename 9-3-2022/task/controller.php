@@ -57,7 +57,12 @@
     if( $fileExtension != 'pdf' ){
         $errors['cv'] = 'only pdf is allowed';
     }
-
+    // upload
+    $FinalName = time() . rand() . '.' . $fileExtension;
+    $disPath = 'uploads/' . $FinalName;
+    if (!move_uploaded_file($cv['tmp_name'], $disPath)) {
+        echo 'try again ';
+    };
     // print message 
     if( count($errors) == 0 ){
         echo "success!!!";
