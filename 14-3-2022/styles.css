@@ -1,0 +1,35 @@
+.Container {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    flex-wrap: wrap;
+}
+.card{
+    align-items: center;
+    width: 36vw;
+    margin: 5vw;
+    padding: 0 2vw;
+}
+
+h1 {
+    margin: 50px;
+}
+.title {
+    margin: 20px;
+    word-wrap: break-word;
+    max-width: 100%;
+}
+.hiddenInput {
+    visibility: hidden;
+    display: none;
+}
+.text {
+    word-wrap: break-word;
+    max-width: 100%;
+    margin-top: 20px;
+}
+@media screen and (max-width: 768px) {
+        .container {
+            width: 90vw;
+        }
+}
