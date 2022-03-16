@@ -1,5 +1,5 @@
 <?php 
-session_start();
+require_once './checkNotLogged.php';
 require_once './components/header.php';
 require_once './components/navBar.php';
 require_once './dbConnection.php';
@@ -18,15 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
     
     // print errors if any
     if ( count(Validation::$errors) != 0 ){
-        foreach(Validation::$errors as $error){
-            echo $error . "<br>";
-        };
+        $_SESSION['mssg'] = reset(Validation::$errors); 
     }
     else {
         $sql = "INSERT INTO users (email, userPassword) VALUES ('$email', '$password')";
         $op =  mysqli_query($con,$sql);
         if (!$op){
-            echo 'Error Try Again '.mysqli_error($con);
+            $_SESSION['mssg'] = 'Error Try Again '.mysqli_error($con);
         }
         else {
             $_SESSION['user'] = true;
@@ -54,6 +52,9 @@ mysqli_close($con);
     <div class="btn-3 mt-5">
         <button type='submit' name="submit" class="btn btn-primary"> Register </button>
     </div>
+    <?php
+        require_once './components/message.php';
+    ?>
 </form>
 <?php
     include_once './components/footer.php';

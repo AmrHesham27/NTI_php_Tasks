@@ -7,7 +7,7 @@ parse_str($_SERVER['QUERY_STRING'], $queries);
 $disImg = $queries['disImg'];
 $sql = "DELETE FROM articles WHERE disImg='$disImg'";
 if ( !$con->query($sql) ) {
-    echo "Error : mysqli_error($con)";
+    $_SESSION['mssg'] = "Error : mysqli_error($con)";
 }
 else {
     unlink($disImg);

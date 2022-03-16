@@ -17,10 +17,10 @@ $disImg = $queries['disImg'];
 $sql = "SELECT Title, Content, disImg From articles WHERE disImg='$disImg'";
 $op = mysqli_query($con,$sql);
 if (!$op){
-        echo 'Error Try Again '.mysqli_error($con);
+    $_SESSION['mssg'] = 'Error Try Again '.mysqli_error($con);
 }
 elseif (mysqli_num_rows(mysqli_query($con,$sql)) != 1){
-    echo "sorry this article is not found";
+    $_SESSION['mssg'] = "sorry this article is not found";
 }
 $data = mysqli_fetch_assoc($op);
 
@@ -57,11 +57,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $FinalName = time() . rand() . '.' . $fileExtension;
         $disImg = 'uploads/' . $FinalName;
         if (!move_uploaded_file($Image['tmp_name'], $disImg)) {
-            echo 'please try again ';
+            $_SESSION['mssg'] = 'please try again ';
         }
         else {
             unlink($data['disImg']);
-            echo $data['disImg'];
         }
     }
     else {
@@ -70,9 +69,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     
     // print errors if any
     if ( count(Validation::$errors) != 0 ){
-        foreach(Validation::$errors as $error){
-            echo $error . "<br>";
-        };
+        $_SESSION['mssg'] = reset(Validation::$errors); 
     }
     else{
         // save in sql 
@@ -83,9 +80,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
         WHERE disImg = '$old_path';";
         $op =  mysqli_query($con,$sql);
         if ($op){
-            echo 'Your article was edited';
-        }else {
-            echo 'Error Try Again '.mysqli_error($con);
+            $_SESSION['mssg'] = 'Your article was edited';
+        }
+        else {
+            $_SESSION['mssg'] = 'Error Try Again '.mysqli_error($con);
         }
         header("Location: blog.php");
     }
@@ -111,6 +109,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <div class="btn-3 my-5">
         <button type='submit' name="submit" class="btn btn-primary my-5"> Edit </button>
     </div>
+    <?php
+        require_once './components/message.php';
+    ?>
 </form>
 <?php
     include_once './components/footer.php';

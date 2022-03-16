@@ -1,5 +1,5 @@
 <?php 
-session_start();
+require_once './checkNotLogged.php';
 require_once './components/header.php';
 require_once './components/navBar.php';
 require_once './dbConnection.php';
@@ -16,22 +16,21 @@ if( $_SERVER['REQUEST_METHOD'] == "POST"){
 
     // print errors if any
     if ( count(Validation::$errors) != 0 ){
-        foreach(Validation::$errors as $error){
-            echo $error . "<br>";
-        };
+        $_SESSION['mssg'] = reset(Validation::$errors); 
     }
     else {
         // login logic
         $sql = "SELECT email FROM users WHERE email = '$email' AND userPassword = '$hashed_password'";
         $op =  mysqli_query($con,$sql);
         if (!$op){
-            echo 'Error Try Again '.mysqli_error($con);
+            $_SESSION['mssg'] = 'Error Try Again '.mysqli_error($con);
         }
         elseif (mysqli_num_rows(mysqli_query($con,$sql)) != 1){
-            echo 'Email or Password is wrong, please try again';
+            $_SESSION['mssg'] = 'Email or Password is wrong, please try again';
         }
         else {
             $_SESSION['user'] = true;
+            header("Location: blog.php");
         }
     }
 }
@@ -51,6 +50,9 @@ mysqli_close($con);
     <div class="btn-3 mt-5">
         <button type='submit' type='password' name="submit" class="btn btn-primary"> Login </button>
     </div>
+    <?php
+        require_once './components/message.php';
+    ?>
 </form>
 <?php
     include_once './components/footer.php';

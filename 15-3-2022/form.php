@@ -19,35 +19,33 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     $Image = $_FILES['Image'];
     if( $Image['size'] == 0 ){
-        $errors['Image'] = "the Image is required"; 
+        Validation::$errors['Image'] = "the Image is required"; 
     }
     else {
         $fileArray = explode('/', $Image['type']);
         $fileExtension = end( $fileArray );
         $allowedExtensions = ['jpeg', 'JPEG', 'jpg', 'JPG', 'png', 'PNG'];
         if( !in_array($fileExtension, $allowedExtensions) ){
-            $errors['Image'] = 'allowed extensions are only jpeg ,jpg and png';
+            Validation::$errors['Image'] = 'allowed extensions are only jpeg ,jpg and png';
         };
         $FinalName = time() . rand() . '.' . $fileExtension;
         $disPath = 'uploads/' . $FinalName;
         if (!move_uploaded_file($Image['tmp_name'], $disPath)) {
-            echo 'please try again ';
+            $_SESSION['mssg'] = 'please try again ';
         };
     }
     // print errors if any
     if ( count(Validation::$errors) != 0 ){
-        foreach(Validation::$errors as $error){
-            echo $error . "<br>";
-        };
+        $_SESSION['mssg'] = reset(Validation::$errors); 
     }
     else {
         // save in sql 
         $sql = "insert into articles (Title, Content, disImg) values ('$Title','$Content','$disPath')";
         $op =  mysqli_query($con,$sql);
         if ($op){
-            echo 'Your article was inserted';
+            $_SESSION['mssg'] = 'Your article was inserted';
         }else {
-            echo 'Error Try Again '.mysqli_error($con);
+            $_SESSION['mssg'] = 'Error Try Again '.mysqli_error($con);
         }
         mysqli_close($con);
     }
@@ -71,6 +69,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <div class="btn-3 mt-5">
         <button type='submit' name="submit" class="btn btn-primary"> Post </button>
     </div>
+    <?php
+        require_once './components/message.php';
+    ?>
 </form>
 <?php
     include_once './components/footer.php';

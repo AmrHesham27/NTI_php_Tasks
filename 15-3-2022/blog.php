@@ -6,7 +6,7 @@
     $sql = "select Title , Content , disImg from articles";
     $data = mysqli_query($con,$sql);
     if (!$data){
-        echo 'Error Try Again '.mysqli_error($con);
+        $_SESSION['mssg'] = 'Error Try Again '.mysqli_error($con);
     };
 ?>
 <h1 class="text-center"> Blog </h1>
