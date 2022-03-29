@@ -39,11 +39,11 @@
     <form action="<?php echo url('/addArticleAction');?>" method="post" enctype="multipart/form-data">
         <input type="hidden" name="_token" value=<?php echo csrf_token() ?>>
         <label>Title</label>
-        <input placeholder="enter title" name="title">
+        <input placeholder="enter title" name="title" value="<?php echo old('title');?>">
         <label>Content</label>
-        <input placeholder="enter content" name="content">
+        <input placeholder="enter content" name="content" value="<?php echo old('content');?>">
         <label>Image</label>
-        <input type="file" name="image">
+        <input type="file" name="image" >
         <button>submit</button>
     </form>
 </body>
