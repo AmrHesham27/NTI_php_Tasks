@@ -1,23 +1,10 @@
 <x-header />
 <x-navbar />
-<body>
-    <div class="page text-center">
+
+<div class="page text-center">
     <h1>Register</h1>
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    @if (session()->get('mssg'))
-        <div class="alert alert-primary my-5" role="alert">{{session()->get('mssg')}}</div>
-    @endif
-
+    <x-errors />
+    <x-mssg />
     <form action="{{url('/User')}}" method="post">
         @csrf
         <div class="form-group my-4">
@@ -42,7 +29,7 @@
 
         <button class="btn btn-primary my-5">Register</button>
     </form>
-    </div>
-</body>
+</div>
+
 <x-footer/>
 

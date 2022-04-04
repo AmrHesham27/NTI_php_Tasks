@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -14,9 +15,18 @@ class TaskController extends Controller
      */
     public function index()
     {
+        //session()->forget('pagination');
         $id = auth()->id();
-        $data = Task::all("*")->where('addedBy', $id);
-        return view('Task.index', ['data' => $data]);
+        $data = $data = Task::all("*")->where('addedBy', $id);
+        $no_of_tasks = count($data);
+        $pagination = session()->get('pagination');
+        if($pagination){
+            $data = DB::select("SELECT * FROM tasks WHERE tasks.addedBy = $id LIMIT $pagination,7;");
+        }
+        else{
+            $data = DB::select("SELECT * FROM tasks WHERE tasks.addedBy = $id LIMIT 7;");
+        }
+        return view('Task.index', ['data' => $data, 'no_of_tasks' => $no_of_tasks]);
     }
 
     /**
@@ -41,7 +51,7 @@ class TaskController extends Controller
             "title"  => "required|string|min:6|max:40",
             "content" => "required|string|min:6|max:100",
             "image" => "mimes:jpeg,jpg,png,gif|required|max:10000",
-            "startDate" => "required|after:today",
+            "startDate" => "required|after:yesterday",
             "endDate" => "required|after:".$request->startDate,
         ]);
         $data['addedBy'] = auth()->id();
@@ -50,13 +60,12 @@ class TaskController extends Controller
             $data['image'] =  $FileName;
         }
         else {
-            session()->flash('mssg', 'Error , please try again');
+            $this->message(false, '', 'Error , please try again');
             return redirect(url('/Task/create'));
         }
         $op = Task::create($data);
-        $mssg = $op? 'Task was created successfully' : 'Error try again';
-        session()->flash('mssg', $mssg);
-        return redirect(url('/Task/'));
+        $this->message($op, 'Task was created successfully', 'Error try again');
+        return redirect(url('/1'));
     }
 
     /**
@@ -79,8 +88,8 @@ class TaskController extends Controller
     public function edit($id)
     {
         $userId = auth()->id();
-        $data = Task::all("*")->where('addedBy', $userId)->where('id', $id);
-        return view('Task.edit', ['data' => $data[0]]);
+        $data = DB::select("SELECT * from tasks where id = $id AND addedBy = $userId");
+        return view('Task.edit', [ 'data' => $data[0] ]);
     }
 
     /**
@@ -93,13 +102,13 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         $userId = auth()->id();
-        $old_image = Task::all()->where('id', intval($id))->where('addedBy', $userId)[0]->image;
+        $old_image = DB::select("SELECT * from tasks where id = $id AND addedBy = $userId")[0]->image;
         $data = $this->validate($request,[
-            "title"  => "required|string",
-            "content" => "required|string",
+            "title"  => "required|string|min:6|max:40",
+            "content" => "required|string|min:6|max:100",
             "image" => "nullable|image|mimes:png,jpg|max:10000",
             "startDate" => "required",
-            "endDate" => "required",
+            "endDate" => "required|after:".$request->startDate,
         ]);
         $data['addedBy'] = $userId;
 
@@ -115,9 +124,8 @@ class TaskController extends Controller
         };
 
         $op = Task::where('id', $id)->where('addedBy', $userId)->update($data);
-        $mssg = $op? 'Task was edited successfully' : 'Error try again';
-        session()->flash('mssg', $mssg);
-        return redirect(url('/Task/'));
+        $this->message($op, 'Task was edited successfully', 'Error try again');
+        return redirect(url('/1'));
     }
 
     /**
@@ -132,13 +140,28 @@ class TaskController extends Controller
         $userId = auth()->id();
         $op = Task::where('id', $id)->where('addedBy', $userId)->delete();
         if($op){
-            $mssg = 'Task was deleted successfully';
+            $this->message(true, 'Task was deleted successfully', '');
             unlink(public_path('uploads/'.$data->image));
         }
         else {
-            $mssg = 'Error please try again';
+            $this->message(false, '', 'Error please try again');
         }
-        session()->flash('mssg', $mssg);
-        return redirect(url('/Task/'));
+        return redirect(url('/1'));
+    }
+    public function taskDone (Request $request)
+    {
+        $data = $this->validate($request,[
+            "id"  => "required|numeric",
+        ]);
+        $id = $data['id'];
+        $userId = auth()->id();
+        $status = DB::select("SELECT * from tasks where id = $id AND addedBy = $userId")[0]->status;
+        if($status == true){
+            Task::where('id', $id)->where('addedBy', $userId)->update(['status' => false]);
+        }
+        else {
+            Task::where('id', $id)->where('addedBy', $userId)->update(['status' => true]);
+        }
+        return redirect()->back();
     }
 }

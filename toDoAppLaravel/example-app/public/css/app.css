@@ -48,3 +48,23 @@ table {
             width: 90vw;
         }
 }
+
+.myNav{
+    background-image: linear-gradient(to right, blueviolet , crimson);
+}
+a {
+    color: white !important;
+}
+.myFooter{
+    background-image: linear-gradient(to left, blueviolet , crimson);
+}
+i {
+    margin: 5px;
+    color: white;
+}
+
+
+.page-link, .page-link:hover, .page-link:focus{
+    background-color: blueviolet;
+}
+

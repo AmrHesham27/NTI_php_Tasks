@@ -33,9 +33,8 @@ class UserController extends Controller
         ]);
         $data['password'] = bcrypt($data['password']);
         $op = User::create(["name" => $data['name'], "email" => $data['email'], "password" => $data['password'],]);
-        $mssg = $op ? 'You were registered successfully' : 'Error try again';
-        session()->flash('mssg', $mssg);
-        return redirect(url('/Task'));
+        $this->message($op, 'You were registered successfully', 'Error try again');
+        return redirect(url('/1'));
     }
 
     /**
@@ -66,9 +65,8 @@ class UserController extends Controller
         ]);
         $userId = auth()->id();
         $op = User::where('id', $userId)->update(['name' => $data['name'], 'email' => $data['email']]);
-        $mssg = $op? 'User was edited successfully' : 'Error try again';
-        session()->flash('mssg', $mssg);
-        return redirect(url('/Task'));
+        $this->message($op, 'User was edited successfully', 'Error try again');
+        return redirect(url('/1'));
     }
 
     /**
@@ -81,7 +79,7 @@ class UserController extends Controller
     {
         //
     }
-    /** Login Logout */
+    /** Authentication */
     public function loginPage(){
         return view('User.login');
     }
@@ -91,11 +89,11 @@ class UserController extends Controller
           "password" => "required"
         ]);
         if(auth()->attempt($data)){
-            session()->flash('mssg','You were logged in successfully');
-            return  redirect(url('/Task'));
+            $this->message(true, 'You were logged in successfully.', '');
+            return  redirect(url('/1'));
         }
         else {
-            session()->flash('mssg','Email or Password is wrong, please try again');
+            $this->message(false, '', 'Email or Password is wrong, please try again');
             return redirect(url('/login'));
         }
     }

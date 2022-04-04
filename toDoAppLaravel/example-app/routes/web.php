@@ -15,6 +15,10 @@ use App\Http\Controllers\UserController;
 |
 */
 
+/** Index */
+Route::get('/', [TaskController::class,'index'])
+->middleware('checkUser');
+
 /* only not logged in users can visit this routes */
 Route::middleware(['notLoggedIn'])->group(function(){
     Route::resource('User' ,UserController::class)->except( ['edit' , 'update'] );
@@ -24,15 +28,15 @@ Route::middleware(['notLoggedIn'])->group(function(){
 
 /* only logged in */
 Route::middleware(['checkUser'])->group(function(){
-    Route::resource('Task',TaskController::class)->except('destroy', 'update');
+    Route::resource('Task',TaskController::class)->except('index');
     Route::resource('User',UserController::class)->only( ['edit' , 'update'] );
     Route::get('/logOut', [UserController::class,'logOut']);
+    Route::post('/status', [TaskController::class,'taskDone']);
+    // pagination
+    Route::get('/{from}', function($from){
+        $pagination = $from - 1;
+        session()->put('pagination', $pagination);
+        return redirect(url('/'));
+    });
 });
-
-/* loged in and check task date */
-Route::delete('/Task/{id}', [TaskController::class,'destroy'])
-->middleware('checkUser', 'checkTaskDate');
-
-Route::put('/Task/{id}', [TaskController::class,'update'])
-->middleware('checkUser', 'checkTaskDate');
 
